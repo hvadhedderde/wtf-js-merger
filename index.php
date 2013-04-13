@@ -13,32 +13,32 @@ if(isset($read_access) && $read_access) {
 	return;
 }
 
-$file_include[] = "seg_basic_include.js";
-$file_output[] = "../seg_basic.js";
+$file_include[] = "../seg_basic_include.js";
+$file_output[] = "../../seg_basic.js";
 
-$file_include[] = "seg_mobile_light_include.js";
-$file_output[] = "../seg_mobile_light.js";
+$file_include[] = "../seg_mobile_light_include.js";
+$file_output[] = "../../seg_mobile_light.js";
 
-$file_include[] = "seg_mobile_include.js";
-$file_output[] = "../seg_mobile.js";
+$file_include[] = "../seg_mobile_include.js";
+$file_output[] = "../../seg_mobile.js";
 
-$file_include[] = "seg_mobile_touch_include.js";
-$file_output[] = "../seg_mobile_touch.js";
+$file_include[] = "../seg_mobile_touch_include.js";
+$file_output[] = "../../seg_mobile_touch.js";
 
-$file_include[] = "seg_tablet_include.js";
-$file_output[] = "../seg_tablet.js";
+$file_include[] = "../seg_tablet_include.js";
+$file_output[] = "../../seg_tablet.js";
 
-$file_include[] = "seg_desktop_include.js";
-$file_output[] = "../seg_desktop.js";
+$file_include[] = "../seg_desktop_include.js";
+$file_output[] = "../../seg_desktop.js";
 
-$file_include[] = "seg_desktop_light_include.js";
-$file_output[] = "../seg_desktop_light.js";
+$file_include[] = "../seg_desktop_light_include.js";
+$file_output[] = "../../seg_desktop_light.js";
 
-$file_include[] = "seg_desktop_ie_include.js";
-$file_output[] = "../seg_desktop_ie.js";
+$file_include[] = "../seg_desktop_ie_include.js";
+$file_output[] = "../../seg_desktop_ie.js";
 
-$file_include[] = "seg_tv_include.js";
-$file_output[] = "../seg_tv.js";
+$file_include[] = "../seg_tv_include.js";
+$file_output[] = "../../seg_tv.js";
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
