@@ -105,8 +105,11 @@ foreach($file_include as $index => $source) {
 				if(preg_match("/http:/i", $include)) {
 					$filepath = $matches[1];
 				}
-				else {
+				else if(strpos($include, "/")) {
 					$filepath = "http://".$_SERVER["HTTP_HOST"].$matches[1];
+				}
+				else {
+					$filepath = "../".$matches[1];
 				}
 //				print $filepath."<br>";
 				$files[] = $filepath;
