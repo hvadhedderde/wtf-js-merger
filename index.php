@@ -103,11 +103,11 @@ foreach($file_include as $index => $source) {
 		foreach($includes as $include) {
 //			print htmlspecialchars($include) . "<br>";
 			if(strpos($include, "//") !== 0 && preg_match("/src=\"([a-zA-Z0-9\.\/_\:\-\=\?]+)\"/i", $include, $matches)) {
-//				print "no c:$include<br>";
-				if(preg_match("/http:/i", $include)) {
+//				print "no c:$include<br>".$matches[1]."<br>";
+				if(preg_match("/http[s]?:\/\//i", $matches[1])) {
 					$filepath = $matches[1];
 				}
-				else if(strpos($include, "/")) {
+				else if(strpos($matches[1], "/")) {
 					$filepath = "http://".$_SERVER["HTTP_HOST"].$matches[1];
 				}
 				else {
