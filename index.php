@@ -1,5 +1,7 @@
 <?php
-// dearapi-resources
+// js-merger for WhatTheFramework JavaScript segments
+// copyright 2013 Martin Kaestel Nielsen, think.dk and hvadhedderde under MIT-License
+// http://whattheframework.org
 
 ini_set("auto_detect_line_endings", true);
 error_reporting(E_ALL);
