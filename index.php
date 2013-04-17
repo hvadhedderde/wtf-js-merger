@@ -15,32 +15,48 @@ if(isset($read_access) && $read_access) {
 	return;
 }
 
-$file_include[] = "../seg_basic_include.js";
-$file_output[] = "../../seg_basic.js";
 
-$file_include[] = "../seg_mobile_light_include.js";
-$file_output[] = "../../seg_mobile_light.js";
+// merge-path info required from Apache conf
+if(isset($_SERVER["JS_PATH"])) {
+	$path = $_SERVER["JS_PATH"];
+}
+else {
+	print "No JS_PATH?";
+	exit();
+}
 
-$file_include[] = "../seg_mobile_include.js";
-$file_output[] = "../../seg_mobile.js";
 
-$file_include[] = "../seg_mobile_touch_include.js";
-$file_output[] = "../../seg_mobile_touch.js";
+// INCLUDE LICENSE TEXT???
+$license = $path."/lib/license.txt";
 
-$file_include[] = "../seg_tablet_include.js";
-$file_output[] = "../../seg_tablet.js";
 
-$file_include[] = "../seg_desktop_include.js";
-$file_output[] = "../../seg_desktop.js";
 
-$file_include[] = "../seg_desktop_light_include.js";
-$file_output[] = "../../seg_desktop_light.js";
+$file_include[] = $path."/lib/seg_basic_include.js";
+$file_output[] = $path."/seg_basic.js";
 
-$file_include[] = "../seg_desktop_ie_include.js";
-$file_output[] = "../../seg_desktop_ie.js";
+$file_include[] = $path."/lib/seg_mobile_light_include.js";
+$file_output[] = $path."/seg_mobile_light.js";
 
-$file_include[] = "../seg_tv_include.js";
-$file_output[] = "../../seg_tv.js";
+$file_include[] = $path."/lib/seg_mobile_include.js";
+$file_output[] = $path."/seg_mobile.js";
+
+$file_include[] = $path."/lib/seg_mobile_touch_include.js";
+$file_output[] = $path."/seg_mobile_touch.js";
+
+$file_include[] = $path."/lib/seg_tablet_include.js";
+$file_output[] = $path."/seg_tablet.js";
+
+$file_include[] = $path."/lib/seg_desktop_include.js";
+$file_output[] = $path."/seg_desktop.js";
+
+$file_include[] = $path."/lib/seg_desktop_light_include.js";
+$file_output[] = $path."/seg_desktop_light.js";
+
+$file_include[] = $path."/lib/seg_desktop_ie_include.js";
+$file_output[] = $path."/seg_desktop_ie.js";
+
+$file_include[] = $path."/lib/seg_tv_include.js";
+$file_output[] = $path."/seg_tv.js";
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -104,14 +120,22 @@ foreach($file_include as $index => $source) {
 //			print htmlspecialchars($include) . "<br>";
 			if(strpos($include, "//") !== 0 && preg_match("/src=\"([a-zA-Z0-9\.\/_\:\-\=\?]+)\"/i", $include, $matches)) {
 //				print "no c:$include<br>".$matches[1]."<br>";
+
+				// external include
 				if(preg_match("/http[s]?:\/\//i", $matches[1])) {
 					$filepath = $matches[1];
 				}
+				// local, absolute include
 				else if(strpos($matches[1], "/") === 0) {
 					$filepath = "http://".$_SERVER["HTTP_HOST"].$matches[1];
 				}
+				// relative include
+				// JS include can only be relative if they are always included from same level dir
+				// if relative path is found here, expect included file to be located in $path/lib
 				else {
-					$filepath = "../".$matches[1];
+					
+//					$filepath = "../".$matches[1];
+					$filepath = $path."/lib/".basename($matches[1]);
 				}
 //				print $filepath."<br>";
 				$files[] = $filepath;
@@ -129,8 +153,12 @@ foreach($file_include as $index => $source) {
 			exit;
 		}
 
-		// TODO: include copyright info
-		fwrite($fp, "// js-merged @ ".date("Y-m-d h:i:s")."\n");
+		if(file_exists($license)) {
+			fwrite($fp, "/*\n");
+			fwrite($fp, file_get_contents($license)."\n");
+			fwrite($fp, "wtf-js-merged @ ".date("Y-m-d h:i:s")."\n");
+			fwrite($fp, "*/\n");
+		}
 
 		// write compiled js
 		$include_size = 0;
@@ -139,6 +167,7 @@ foreach($file_include as $index => $source) {
 		foreach($files as $file) {
 
 			fwrite($fp, "\n");
+			fwrite($fp, "/*".basename($file)."*/\n");
 
 			// calculate pre filesize
 			$file_size = strlen(join('', file($file)));
