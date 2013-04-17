@@ -1,4 +1,4 @@
-js-merger
+wtf-js-merger
 =========
 
 WhatTheFramework - JavaScript merger for device-segments

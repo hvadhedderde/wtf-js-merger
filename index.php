@@ -1,5 +1,5 @@
 <?php
-// js-merger for WhatTheFramework JavaScript segments
+// wtf-js-merger for WhatTheFramework JavaScript segments
 // copyright 2013 Martin Kaestel Nielsen, think.dk and hvadhedderde under MIT-License
 // http://whattheframework.org
 
@@ -128,6 +128,9 @@ foreach($file_include as $index => $source) {
 			print "make files writable first";
 			exit;
 		}
+
+		// TODO: include copyright info
+		fwrite($fp, "// js-merged @ ".date("Y-m-d h:i:s")."\n");
 
 		// write compiled js
 		$include_size = 0;
