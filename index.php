@@ -26,36 +26,44 @@ else {
 }
 
 
+if(isset($_SERVER["JS_INPUT_PATH"])) {
+	$input_path = $_SERVER["JS_INPUT_PATH"];
+}
+else {
+	$input_path = $path;
+}
+
+
 // INCLUDE LICENSE TEXT???
 $license = $path."/lib/license.txt";
 
 
 
-$file_include[] = $path."/lib/seg_basic_include.js";
+$file_include[] = $input_path."/lib/seg_basic_include.js";
 $file_output[] = $path."/seg_basic.js";
 
-$file_include[] = $path."/lib/seg_mobile_light_include.js";
+$file_include[] = $input_path."/lib/seg_mobile_light_include.js";
 $file_output[] = $path."/seg_mobile_light.js";
 
-$file_include[] = $path."/lib/seg_mobile_include.js";
+$file_include[] = $input_path."/lib/seg_mobile_include.js";
 $file_output[] = $path."/seg_mobile.js";
 
-$file_include[] = $path."/lib/seg_mobile_touch_include.js";
+$file_include[] = $input_path."/lib/seg_mobile_touch_include.js";
 $file_output[] = $path."/seg_mobile_touch.js";
 
-$file_include[] = $path."/lib/seg_tablet_include.js";
+$file_include[] = $input_path."/lib/seg_tablet_include.js";
 $file_output[] = $path."/seg_tablet.js";
 
-$file_include[] = $path."/lib/seg_desktop_include.js";
+$file_include[] = $input_path."/lib/seg_desktop_include.js";
 $file_output[] = $path."/seg_desktop.js";
 
-$file_include[] = $path."/lib/seg_desktop_light_include.js";
+$file_include[] = $input_path."/lib/seg_desktop_light_include.js";
 $file_output[] = $path."/seg_desktop_light.js";
 
-$file_include[] = $path."/lib/seg_desktop_ie_include.js";
+$file_include[] = $input_path."/lib/seg_desktop_ie_include.js";
 $file_output[] = $path."/seg_desktop_ie.js";
 
-$file_include[] = $path."/lib/seg_tv_include.js";
+$file_include[] = $input_path."/lib/seg_tv_include.js";
 $file_output[] = $path."/seg_tv.js";
 
 ?>
