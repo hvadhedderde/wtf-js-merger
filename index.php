@@ -3,6 +3,8 @@
 // copyright 2013 Martin Kaestel Nielsen, think.dk and hvadhedderde under MIT-License
 // http://whattheframework.org
 
+
+
 ini_set("auto_detect_line_endings", true);
 error_reporting(E_ALL);
 
@@ -38,7 +40,7 @@ else {
 $license = $path."/lib/license.txt";
 
 
-
+// DEFAULT SEGMENT INCLUDES
 $file_include[] = $input_path."/lib/seg_basic_include.js";
 $file_output[] = $path."/seg_basic.js";
 
@@ -67,100 +69,199 @@ $file_include[] = $input_path."/lib/seg_tv_include.js";
 $file_output[] = $path."/seg_tv.js";
 
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="da" lang="da">
+<!DOCTYPE html>
+<html lang="en">
 <head>
 	<!-- All material protected by copyrightlaws (as if you didnt know) //-->
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<title>-- parse javascript --</title>
 	<style type="text/css">
-	* {
-		font-family: monaco;
-		font-size: 10px;
-	}
-	.good {
-		color: green;
-	}
-	.bad {
-		color: red;
-	}
-	.notminified {
-		color: green; font-weight: normal;
-	}
-	.file {
-		color: black; font-weight: bold;
-	}
-	.file div {display: none;}
-	.open div {display: block;}
+		* {font-family: monaco; font-size: 10px;}
+		h3 {margin: 0; padding: 5px 0 0;}
+		.good {color: green;}
+		.bad {color: red;}
+		.notminified {color: green; font-weight: normal; padding: 0 0 0 0px; display: inline-block;}
+		.minified {color: green; font-weight: normal; padding: 0 0 0 0px; display: inline-block;}
+		.file {color: black; font-weight: bold;}
+		.file .file {padding: 0 0 5px 20px; background: #dedede;}
+		.file div {display: none;}
+		.open > div {display: block;}
 	</style>
 </head>
 <body>
 
 <?php
 
-$_ = '';
+function parseFile($file) {
+	global $fp;
+	global $include_size;
+	global $path;
 
-foreach($file_include as $index => $source) {
+
+	$file_size = strlen(file_get_contents($file));
+	$include_size += $file_size ? $file_size : 0;
+	$minisize = 0;
+
+	// file header
+	print '<div class="file">'."\n";
+	print '<h3 onclick="this.parentNode.className = this.parentNode.className.match(/open/) ? \'file\' : \'file open\'">'.$file."</h3>\n";
+
+	// get lines from file
+	$lines = file($file);
+
+	// if file has content
+	if(count($lines)) {
+
+		fwrite($fp, "\n");
+		fwrite($fp, "/*".basename($file)."*/\n");
 
 
-	if(file_exists($source)) {
+//		print $file_size;
 
-//		$fp = @fopen($source, "r");
-		$includes = file($source);
+		$comment_switch = false;
 
-	}
-	else {
-		
-		$includes = false;
-		
-	}
+		foreach($lines as $linenumber => $line) {
 
-	// read include file
-	if(!$includes) {
-		$_ .= $source . " -> " . $file_output[$index] . "<br />";
-		$_ .= "No include file<br /><br /><hr />";
-	}
-	else {
+			// adjustment string - modify this string, for reference in matches
+			$work_line = $line;
+			$include_line = false;
 
-		$files = array();
+			if($work_line) {
 
-		foreach($includes as $include) {
-//			print htmlspecialchars($include) . "<br>";
-			if(strpos($include, "//") !== 0 && preg_match("/src=\"([a-zA-Z0-9\.\/_\:\-\=\?]+)\"/i", $include, $matches)) {
-//				print "no c:$include<br>".$matches[1]."<br>";
-
-				// external include
-				if(preg_match("/http[s]?:\/\//i", $matches[1])) {
-					$filepath = $matches[1];
+				// replace one-liner comments, even if nested inside other string
+				if(!$comment_switch && preg_match("/\/\*[^$]+\*\//", $work_line)) {
+					$work_line = preg_replace("/\/\*[^$]+\*\//", "", $work_line);
 				}
-				// local, absolute include
-				else if(strpos($matches[1], "/") === 0) {
-					$filepath = "http://".$_SERVER["HTTP_HOST"].$matches[1];
+
+				// found for /* comment start
+				if(!$comment_switch && strpos($work_line, "/*") !== false) {
+
+					$com_s_pos = strpos($line, "/*");
+					$comment_switch = true;
+
+					// get line content before comment starts (if any)
+					$work_line = substr($line, 0, $com_s_pos);
 				}
-				// relative include
-				// JS include can only be relative if they are always included from same level dir
-				// if relative path is found here, expect included file to be located in $path/lib
-				else {
+
+				// comment switch is on, look for */ comment end
+				if($comment_switch && strpos($work_line, "*/") !== false) {
+
+					$com_e_pos = strpos($line, "*/");
+					$comment_switch = false;
+
+					// get line content after comment is ended
+					$work_line = substr($line, $com_e_pos+2);
+
+					$com_s_pos = 0;
+					$com_e_pos = 0;
+				}
+				// comment switch is on, remove all content
+				else if($comment_switch) {
 					
-//					$filepath = "../".$matches[1];
-					$filepath = $path."/lib/".basename($matches[1]);
+					$work_line = "";
 				}
-//				print $filepath."<br>";
-				$files[] = $filepath;
+
+				// check for // comment start - easy match, only ignore if : in front of //
+				if(!$comment_switch && preg_match("/(^|[^:]{1})\/\//", $work_line)) {
+
+					$additional_test = preg_replace("/(^|[^:\"\'\\\]{1})\/\/[^$]+/", "", $work_line);
+					if(substr_count($additional_test, '"')%2 === 0 && substr_count($additional_test, "'")%2 === 0) {
+						$work_line = $additional_test;
+					}
+				}
+
+				// not comment and not empty line - nothing should be done
+				// else if(!$comment_switch && trim($work_line)) {
+				// 
+				// 	$work_line = $line;
+				// }
+
+				// TODO: make sure it is a script tag
+				// check if line contains new include ()
+				if(!$comment_switch && preg_match("/document.write[^$]+script[^$]+src=\"([a-zA-Z0-9\.\/_\:\-\=\?]+)\"/i", $work_line, $matches)) {
+//					print "matched include:".$matches[1]."<br>";
+
+					$work_line = "";
+					$include_line = true;
+
+					// external include
+					if(preg_match("/http[s]?:\/\//i", $matches[1])) {
+						$filepath = $matches[1];
+					}
+					// local, absolute include
+					else if(strpos($matches[1], "/") === 0) {
+						$filepath = "http://".$_SERVER["HTTP_HOST"].$matches[1];
+					}
+					// relative include
+					// JS include can only be relative if they are always included from same level dir
+					// if relative path is found here, expect included file to be located in $path/lib
+					else {
+					
+						$filepath = $path."/lib/".basename($matches[1]);
+					}
+
+					// parse new include file
+					parseFile($filepath);
+
+					// add whitespace
+					fwrite($fp, "\n");
+				}
+
+				if(trim($work_line) && !$comment_switch) {
+					fwrite($fp, $work_line);
+					$minisize += strlen($work_line);
+				
+				}
 			}
-			else {
-//				print "c:$include<br>";
+
+			// output result of parsing
+			if(!$comment_switch && (trim($work_line) && trim($line) == trim($work_line))) {
+				print "\t".'<div class="notminified"><code>'.$linenumber.':'.htmlentities($line).'</code></div>';
 			}
+			else if(!$include_line) {
+				print "\t".'<div class="minified"><span class="bad">'.$linenumber.':'.htmlentities(trim($line)).'</span><span class="good">'.htmlentities(trim($work_line)).'</span></div>';
+			}
+
 		}
 
+	}
+	// empty files
+	else {
+		print "\t".'<div class="minified"><span class="bad">Empty file</span></div>'."\n";
+	}
 
+//	print "<div class=\"size\">($include_size bytes) -> ($minisize bytes)</div>";
+
+
+	print "</div>";
+
+}
+
+
+// loop through segment includes
+foreach($file_include as $index => $source) {
+
+//	print $source."<br>";
+	// is segment include available
+	if(!file_exists($source)) {
+
+		print $source . " -> " . $file_output[$index] . "<br />";
+		print "No include file<br /><br /><hr />";
+
+
+	}
+	else {
+
+		// create output file
 		$fp = @fopen($file_output[$index], "w+");
 
+		// could not create, exit with error
 		if(!$fp) {
 			print "make files writable first";
 			exit;
 		}
 
+		// include license
 		if(file_exists($license)) {
 			fwrite($fp, "/*\n");
 			fwrite($fp, file_get_contents($license)."\n");
@@ -168,87 +269,16 @@ foreach($file_include as $index => $source) {
 			fwrite($fp, "*/\n");
 		}
 
-		// write compiled js
+
+		// keep track of file size
 		$include_size = 0;
-		$a = '';
-
-		foreach($files as $file) {
-
-			fwrite($fp, "\n");
-			fwrite($fp, "/*".basename($file)."*/\n");
-
-			// calculate pre filesize
-			$file_size = strlen(join('', file($file)));
-			$include_size += $file_size ? $file_size : 0;
-			$minisize = 0;
-
-			$a .= '<div class="file" onclick="this.className = this.className.match(/open/) ? \'file\' : \'file open\'">' . $file . " (".$file_size;
-
-			$lines = file($file);
-			$switch = false;
-			foreach($lines as $linenumber => $line) {
-
-				$minified = "";
-				if(trim($line)) {
-
-					if(!$switch && strpos($line, "/*") !== false) {
-						$com_line = $index;
-						$com_s_pos = strpos($line, "/*");
-						$switch = true;
-					}
-
-					if(!$switch && strpos(trim($line), "//") === 0) {
-//					if(!$switch && strpos($line, "//") !== false && strpos($line, "://") != strpos($line, "//")-1) {
-						$minified = substr($line, 0, strpos($line, "//"));
-					}
-					else if(!$switch && trim($line)) {
-						$minified = $line;
-					}
-					else if($switch && strpos($line, "*/") !== false) {
-
-						$com_e_pos = strpos($line, "*/");
-						$switch = false;
-						$comment = substr($line, $com_s_pos, ($com_e_pos-$com_s_pos+2));
-						$minified = str_replace(substr($line, $com_s_pos, ($com_e_pos-$com_s_pos+2)), "", $line);
-					}
-
-					$com_s_pos = 0;
-
-					if(trim($minified)) {
-						fwrite($fp, $minified);
-						$minisize += strlen($minified);
-						
-					}
-				}
 
 
-				if($line == $minified) {
-					$a .= '<div class="notminified"><code>'.$linenumber.':'.htmlentities($minified).'</code></div>';
-				}
-				else {
-					$a .=  '<div class="minified"><span class="bad">'.$linenumber.':'.$line.'</span><span class="good">' . htmlentities($minified) . '</span></div>';
-				}
-
-			}
-			$a .= "/".$minisize.")";
-
-			$a .=  '</div>';
-			
-		}
-		
-		fclose($fp);
-
-		$_ .= $source . " ($include_size bytes) -> " . $file_output[$index] . " (".filesize($file_output[$index])." bytes)<br />";
-		$_ .= count($includes) . " include files<br /><br />";
-
-		$_ .= $a."<br /><br /><hr />";
+		// write compiled js
+		parseFile($source);
 
 	}
-
-
 }
-
-print $_;
 
 ?>
 </body>
