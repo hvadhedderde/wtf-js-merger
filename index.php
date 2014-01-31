@@ -3,8 +3,6 @@
 // copyright 2013 Martin Kaestel Nielsen, think.dk and hvadhedderde under MIT-License
 // http://whattheframework.org
 
-
-
 ini_set("auto_detect_line_endings", true);
 error_reporting(E_ALL);
 
@@ -128,7 +126,7 @@ function parseFile($file) {
 
 			if($work_line) {
 
-				// replace one-liner comments, even if nested inside other string
+				// replace one-liner /**/ comments, even if nested inside other string
 				if(!$comment_switch && preg_match("/\/\*[^$]+\*\//", $work_line)) {
 					$work_line = preg_replace("/\/\*[^$]+\*\//", "", $work_line);
 				}
@@ -161,13 +159,57 @@ function parseFile($file) {
 					$work_line = "";
 				}
 
-				// check for // comment start - easy match, only ignore if : in front of //
-				if(!$comment_switch && preg_match("/(^|[^:]{1})\/\//", $work_line)) {
+				// check for // comment starts the line
+				if(!$comment_switch && preg_match("/^\/\//", $work_line)) {
 
-					$additional_test = preg_replace("/(^|[^:\"\'\\\]{1})\/\/[^$]+/", "", $work_line);
-					if(substr_count($additional_test, '"')%2 === 0 && substr_count($additional_test, "'")%2 === 0) {
-						$work_line = $additional_test;
+					$work_line = "";
+				}
+
+				// check for // comment start position within line
+				// ignore if // is inside quoted string or in regular expression 
+				if(!$comment_switch && preg_match_all("/[^:\\\]{1}\/\//", $work_line, $matches)) {
+
+					// multiple matches to be investigated
+					if(count($matches[0]) > 1) {
+
+//						print "multiple occurences<br>";
+
+						for($i = 0; $i < count($matches); $i++) {
+
+							// start with last occurence
+							$pos = strrpos($work_line, "//");
+
+							// add new newline, because we are get substring from begining only
+							$additional_test = substr($work_line, 0, $pos)."\n";
+
+							// check if removal breaks quoted string or quoted string was already broken
+							if(
+								(substr_count($additional_test, '"')%2 === 0 || substr_count($work_line, '"')%2 === 1) 
+								&& 
+								(substr_count($additional_test, "'")%2 === 0 || substr_count($work_line, "'")%2 === 1)
+							) {
+								$work_line = $additional_test;
+							}
+
+						}
+
 					}
+					// only one occurence
+					else {
+						// remove from occurence to end
+						$additional_test = preg_replace("/\/\/.*/", "", $work_line);
+
+						// check if removal breaks quoted string or quoted string was already broken
+						if(
+							(substr_count($additional_test, '"')%2 === 0 || substr_count($work_line, '"')%2 === 1) 
+							&& 
+							(substr_count($additional_test, "'")%2 === 0 || substr_count($work_line, "'")%2 === 1)
+						) {
+							$work_line = $additional_test;
+						}
+					}
+
+
 				}
 
 				// not comment and not empty line - nothing should be done
