@@ -9,7 +9,7 @@ removing empty lines and inline comments.
 
 Note on lack of minification:
 Does not (and should not) minify the JavaScript as the minification process is considered excessive, 
-disabling meaningful debug output with obscurity in production evironments.Well structured JavaScript 
+disabling meaningful debug output with obscurity in production evironments. Well structured JavaScript 
 and optimized webserver delivery of fewer files easily provide greater 
 optimization than minification.
 
