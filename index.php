@@ -1,7 +1,7 @@
 <?php
-// wtf-js-merger for WhatTheFramework JavaScript segments
-// copyright 2013 Martin Kaestel Nielsen, think.dk and hvadhedderde under MIT-License
-// http://whattheframework.org
+// JavaScript merger for parentNode Detector segments
+// copyright 2013-2015 Martin Kaestel Nielsen, parentnode.dk under MIT-License
+// http://parentnode.dk
 
 ini_set("auto_detect_line_endings", true);
 error_reporting(E_ALL);
@@ -317,7 +317,7 @@ foreach($file_include as $index => $source) {
 		if(file_exists($license)) {
 			fwrite($fp, "/*\n");
 			fwrite($fp, file_get_contents($license)."\n");
-			fwrite($fp, "wtf-js-merged @ ".date("Y-m-d h:i:s")."\n");
+			fwrite($fp, "js-merged @ ".date("Y-m-d h:i:s")."\n");
 			fwrite($fp, "*/\n");
 		}
 

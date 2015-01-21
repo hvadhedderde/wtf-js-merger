@@ -1,7 +1,7 @@
 js-merger
 =========
 
-JavaScript merger, optimized to work with Conductor device-segments
+JavaScript merger, optimized to work with Detector device-segments
 
 Production preparation tool which merges multiple JavaScript files into one file, 
 removing empty lines and inline comments.
@@ -16,4 +16,4 @@ optimization than minification.
 
 For more information, visit: 
 
-http://modulator.parentnode.dk
+http://parentnode.dk
