@@ -76,6 +76,9 @@ $file_output[] = $path."/seg_desktop_ie.js";
 $file_include[] = $input_path."/seg_tv_include.js";
 $file_output[] = $path."/seg_tv.js";
 
+$file_include[] = $input_path."/seg_universal_include.js";
+$file_output[] = $path."/seg_universal.js";
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
