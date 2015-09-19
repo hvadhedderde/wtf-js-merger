@@ -47,37 +47,47 @@ print "OUTPUT PATH: $path<br />";
 // INCLUDE LICENSE TEXT???
 $license = $path."/lib/license.txt";
 
+// find include sources
+$handle = opendir("$input_path");
+while(($file = readdir($handle)) !== false) {
+	if(preg_match("/seg_([a-zA-Z-_]+)_include.js$/", $file, $match)) {
 
-// DEFAULT SEGMENT INCLUDES
-$file_include[] = $input_path."/seg_basic_include.js";
-$file_output[] = $path."/seg_basic.js";
+		$file_include[] = $input_path."/seg_".$match[1]."_include.js";
+		$file_output[] = $path."/seg_".$match[1].".js";
+		
+	}
+}
 
-$file_include[] = $input_path."/seg_mobile_light_include.js";
-$file_output[] = $path."/seg_mobile_light.js";
-
-$file_include[] = $input_path."/seg_mobile_include.js";
-$file_output[] = $path."/seg_mobile.js";
-
-$file_include[] = $input_path."/seg_mobile_touch_include.js";
-$file_output[] = $path."/seg_mobile_touch.js";
-
-$file_include[] = $input_path."/seg_tablet_include.js";
-$file_output[] = $path."/seg_tablet.js";
-
-$file_include[] = $input_path."/seg_desktop_include.js";
-$file_output[] = $path."/seg_desktop.js";
-
-$file_include[] = $input_path."/seg_desktop_light_include.js";
-$file_output[] = $path."/seg_desktop_light.js";
-
-$file_include[] = $input_path."/seg_desktop_ie_include.js";
-$file_output[] = $path."/seg_desktop_ie.js";
-
-$file_include[] = $input_path."/seg_tv_include.js";
-$file_output[] = $path."/seg_tv.js";
-
-$file_include[] = $input_path."/seg_universal_include.js";
-$file_output[] = $path."/seg_universal.js";
+// // DEFAULT SEGMENT INCLUDES
+// $file_include[] = $input_path."/seg_basic_include.js";
+// $file_output[] = $path."/seg_basic.js";
+//
+// $file_include[] = $input_path."/seg_mobile_light_include.js";
+// $file_output[] = $path."/seg_mobile_light.js";
+//
+// $file_include[] = $input_path."/seg_mobile_include.js";
+// $file_output[] = $path."/seg_mobile.js";
+//
+// $file_include[] = $input_path."/seg_mobile_touch_include.js";
+// $file_output[] = $path."/seg_mobile_touch.js";
+//
+// $file_include[] = $input_path."/seg_tablet_include.js";
+// $file_output[] = $path."/seg_tablet.js";
+//
+// $file_include[] = $input_path."/seg_desktop_include.js";
+// $file_output[] = $path."/seg_desktop.js";
+//
+// $file_include[] = $input_path."/seg_desktop_light_include.js";
+// $file_output[] = $path."/seg_desktop_light.js";
+//
+// $file_include[] = $input_path."/seg_desktop_ie_include.js";
+// $file_output[] = $path."/seg_desktop_ie.js";
+//
+// $file_include[] = $input_path."/seg_tv_include.js";
+// $file_output[] = $path."/seg_tv.js";
+//
+// $file_include[] = $input_path."/seg_universal_include.js";
+// $file_output[] = $path."/seg_universal.js";
 
 ?>
 <!DOCTYPE html>
